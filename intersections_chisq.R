@@ -71,20 +71,26 @@ intersections <- unique(intersections_with_collisions$id)
 # Alternative hypothesis:
 # The proportion of collisions at each intersection != the proportion of collisions in the city
 
+stringr::str_to_title(gsub("_", " ", names(collisions_props)))
+
 collisions_props %>%
   enframe() %>%
+  mutate(name = stringr::str_to_title(gsub("_", " ", name))) %>%
   mutate(name = fct_reorder(name, value)) %>%
-  ggplot(aes(name, value)) +
+  ggplot(aes(value, name)) +
   geom_col(fill = "steelblue", color = "black") +
-  geom_text(aes(label = scales::percent(value, accuracy = 0.1)), nudge_y = 0.02) +
-  scale_y_continuous(labels = scales::percent) +
+  geom_text(aes(label = scales::percent(value, accuracy = 0.1)), nudge_x = 0.03) +
+  scale_x_continuous(labels = scales::percent) +
   labs(
     x = NULL,
     y = NULL,
-    title = "Proportion of Collisions in San Francisco",
-    subtitle = "2017-2021"
+    title = "Proportions of Collision Types in San Francisco",
+    subtitle = "2017-2021",
+    caption = "Source: https://transbase.sfgov.org/dashboard/dashboard.php"
   ) +
-  pilot::theme_pilot()
+  pilot::theme_pilot(grid = "v")
+
+ggsave("figs/proportions_of_collision_types.png")
 
 cx_tests <- intersections_with_collisions %>%
   group_by(id) %>%
@@ -107,4 +113,6 @@ cx_test_ss <- cx_tests %>%
   )
 
 collisions_obs_exp <- inner_join(mc_geometry, cx_test_ss, by = "id")
-mapview(collisions_obs_exp, alpha = 0.6)
+st_write(collisions_obs_exp, "data/collisions_obs_exp.shp")
+# mapview(collisions_obs_exp, alpha = 0.6)
+
