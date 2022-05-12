@@ -71,8 +71,6 @@ intersections <- unique(intersections_with_collisions$id)
 # Alternative hypothesis:
 # The proportion of collisions at each intersection != the proportion of collisions in the city
 
-stringr::str_to_title(gsub("_", " ", names(collisions_props)))
-
 collisions_props %>%
   enframe() %>%
   mutate(name = stringr::str_to_title(gsub("_", " ", name))) %>%
@@ -114,5 +112,5 @@ cx_test_ss <- cx_tests %>%
 
 collisions_obs_exp <- inner_join(mc_geometry, cx_test_ss, by = "id")
 st_write(collisions_obs_exp, "data/collisions_obs_exp.shp")
-# mapview(collisions_obs_exp, alpha = 0.6)
+mapview(collisions_obs_exp, alpha.regions = 0.05)
 
